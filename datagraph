@@ -1,0 +1,145 @@
+#!/usr/bin/env python3
+
+from sys import argv, exit
+
+# Functions
+
+def reduce_spaces(string):
+    while string.find('  ') != -1:
+        string = string.replace('  ', ' ')
+    return string
+
+def register_entity(entity_type, entity_args):
+    if entity_type == 'object':
+        register_object(entity_args)
+    elif entity_type == 'relationship':
+        register_relationship(entity_args)
+    elif entity_type == 'cluster':
+        register_cluster(entity_args)
+    elif entity_type == 'namespace':
+        register_namespace(entity_args)
+    else:
+        parse_error('Invalid entity type "%s" has been specified' % (entity_type))
+
+def register_object(args):
+    global objects
+
+    (name, fields) = args.split(' ', 1)
+    (key_fields, value_fields) = fields.split('->', 1)
+
+    key_fields = key_fields.strip()
+    value_fields = value_fields.strip()
+
+    if not key_fields.startswith('[') or not key_fields.endswith(']'):
+        parse_error('Missing square brackets for object key fields')
+    if not value_fields.startswith('[') or not value_fields.endswith(']'):
+        parse_error('Missing square brackets for object value fields')
+
+    # Strip starting and ending square brackets.
+    key_fields = key_fields[1:-1]
+    value_fields = value_fields[1:-1]
+
+    key_fields = key_fields.split(',') if key_fields else []
+    value_fields = value_fields.split(',') if value_fields else []
+
+    key_fields = [field.strip() for field in key_fields]
+    value_fields = [field.strip() for field in value_fields]
+
+    objects[name] = Object(name, key_fields, value_fields)
+
+def register_relationship(args):
+    global relationships, previous_object_escaped_name
+
+    (source, target) = args.split('->', 1)
+
+    source = source.strip()
+    target = target.strip()
+
+    if source.startswith('.'):
+        source = previous_object_escaped_name + source
+
+    relationships.append((source, target))
+
+def register_cluster(args):
+    pass
+
+def register_namespace(args):
+    global namespaces
+    (name, title_color, normal_color) = args.split()
+    namespaces[name] = (title_color, normal_color)
+
+def parse_error(message):
+    global line_number
+    print('Error in line %i: %s' % (line_number, message))
+    exit(1)
+
+def escape(name):
+    return name.replace(':', '_')
+
+# Classes
+
+class Object:
+    def __init__(self, name, key_fields, value_fields):
+        global previous_object_escaped_name
+        self.name = name
+        self.namespace = name.split(':')[0]
+        self.escaped_name = escape(name)
+        self.key_fields = key_fields
+        self.value_fields = value_fields
+        previous_object_escaped_name = self.escaped_name
+
+    def render(self):
+        global namespaces
+        title_color = namespaces[self.namespace][0]
+        normal_color = namespaces[self.namespace][1]
+        print('%s [label=<<TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0">' % (self.escaped_name))
+        print(namespaces[self.namespace]);
+        print('<tr><td port="%s" BGCOLOR="%s">%s</td></tr>' % (self.escaped_name, title_color, self.name))
+        for key_field in self.key_fields:
+            print('<TR><TD PORT="%s" BGCOLOR="%s">%s</TD></TR>' % (escape(key_field), normal_color, key_field))
+        print('<TR><TD BGCOLOR="%s"> &darr; </TD></TR>' % (normal_color))
+        for value_field in self.value_fields:
+            print('<TR><TD PORT="%s" BGCOLOR="%s">%s</TD></TR>' % (escape(value_field), normal_color, value_field))
+        print('</TABLE>>];\n')
+
+# Global variables
+
+line_number = 0
+previous_object_escaped_name = None
+objects = {}
+relationships = []
+current_cluster = None
+clusters = {}
+namespaces = {}
+
+# Main program
+
+input_filename = argv[1]
+file = open(input_filename, 'r')
+
+for line in file:
+    line_number += 1
+    line = line.replace('\t', ' ')
+    line = reduce_spaces(line)
+    line = line.strip()
+
+    tokenized_line = line.split(' ', 1)
+
+    if not line:
+        continue
+
+    (entity_type, entity_args) = tokenized_line
+    register_entity(entity_type, entity_args)
+
+print('digraph G {\nnode [shape=plaintext]\n')  # Graph starts
+
+for object_name, object in objects.items():  # Render objects
+    object.render()
+
+for relationship in relationships:
+    source, target = relationship
+    source = source.replace(':', '_').replace('.', ':')
+    target = target.replace(':', '_').replace('.', ':')
+    print('%s -> %s;' % (source, target))
+
+print('}')  # Graph ends
