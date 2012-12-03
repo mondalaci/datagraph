@@ -1,0 +1,36 @@
+#!/usr/bin/env python
+
+from string import *
+import sys
+import MySQLdb
+
+if (len(sys.argv) <= 2):
+    print('Usage: %s hostname dbname user [password]' % (sys.argv[0]))
+    sys.exit()
+
+(host, db, user, passwd) = sys.argv[1:] + ['' for x in range(5-len(sys.argv))]
+
+database = MySQLdb.connect(host=host, user=user, passwd=passwd, db=db)
+database_cursor = database.cursor()
+database_cursor.execute('show tables')
+
+for table_data in database_cursor:
+    table_name = table_data[0]
+
+    keys = []
+    values = []
+
+    table_cursor = database.cursor()
+    table_cursor.execute('describe ' + table_name)
+    for column_data in table_cursor:
+        (name, type, null, key, default, extra) = column_data
+
+        if (key == 'PRI'):
+            keys.append(name)
+        else:
+            values.append(name)
+
+    keys = join(keys, ', ')
+    values = join(values, ', ')
+
+    print('object sql:%s.%s [%s] -> [%s]' % (db, table_name, keys, values))
