@@ -76,6 +76,12 @@ def parse_error(message):
 def escape(name):
     return name.replace(':', '_').replace('.', '_')
 
+def escape_relationship_name(name):
+    name = name.replace(':', '_')
+    last_dot_pos = name.rfind('.')
+    name = name[:last_dot_pos].replace('.', '_') + ':' + name[last_dot_pos+1:]
+    return name
+
 # Classes
 
 class Object:
@@ -145,8 +151,8 @@ for object_name, object in objects.items():  # Render objects
 
 for relationship in relationships:
     source, target = relationship
-    source = source.replace(':', '_').replace('.', ':')
-    target = target.replace(':', '_').replace('.', ':')
+    source = escape_relationship_name(source)
+    target = escape_relationship_name(target)
     print('%s -> %s;' % (source, target))
 
 print('}')  # Graph ends
