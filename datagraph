@@ -74,33 +74,40 @@ def parse_error(message):
     exit(1)
 
 def escape(name):
-    return name.replace(':', '_')
+    return name.replace(':', '_').replace('.', '_')
 
 # Classes
 
 class Object:
     def __init__(self, name, key_fields, value_fields):
         global previous_object_escaped_name
+
         self.name = name
         self.namespace = name.split(':')[0]
         self.escaped_name = escape(name)
         self.key_fields = key_fields
         self.value_fields = value_fields
+
         previous_object_escaped_name = self.escaped_name
 
     def render(self):
         global namespaces
+
         title_color = namespaces[self.namespace][0]
         normal_color = namespaces[self.namespace][1]
-        print('%s [label=<<TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0">' % (self.escaped_name))
-        print(namespaces[self.namespace]);
-        print('<tr><td port="%s" BGCOLOR="%s">%s</td></tr>' % (self.escaped_name, title_color, self.name))
+
+        print('%s [label=<<table border="0" cellborder="1" cellspacing="0">' % (self.escaped_name))
+        print('<tr><td port="%s" bgcolor="%s">%s</td></tr>' % (self.escaped_name, title_color, self.name))
+
         for key_field in self.key_fields:
-            print('<TR><TD PORT="%s" BGCOLOR="%s">%s</TD></TR>' % (escape(key_field), normal_color, key_field))
-        print('<TR><TD BGCOLOR="%s"> &darr; </TD></TR>' % (normal_color))
+            print('<tr><td port="%s" bgcolor="%s">%s</td></tr>' % (escape(key_field), normal_color, key_field))
+
+        print('<tr><td bgcolor="%s"> &darr; </td></tr>' % (normal_color))
+
         for value_field in self.value_fields:
-            print('<TR><TD PORT="%s" BGCOLOR="%s">%s</TD></TR>' % (escape(value_field), normal_color, value_field))
-        print('</TABLE>>];\n')
+            print('<tr><td port="%s" bgcolor="%s">%s</td></tr>' % (escape(value_field), normal_color, value_field))
+
+        print('</table>>];\n')
 
 # Global variables
 
