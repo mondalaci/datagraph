@@ -48,7 +48,7 @@ def register_object(args):
     objects[name] = Object(name, key_fields, value_fields)
 
 def register_relationship(args):
-    global relationships, previous_object_escaped_name
+    global relationships, previous_object_name, related_objects_dict
 
     (source, target) = args.split('->', 1)
 
@@ -56,9 +56,18 @@ def register_relationship(args):
     target = target.strip()
 
     if source.startswith('.'):
-        source = previous_object_escaped_name + source
+        source = escape(previous_object_name) + source
 
     relationships.append((source, target))
+
+    source_object = extract_object_name(source)
+    target_object = extract_object_name(target)
+
+    related_objects_dict[source_object] = True
+    related_objects_dict[target_object] = True
+
+def extract_object_name(relationship):
+    return relationship[:relationship.rfind('.')]
 
 def register_cluster(args):
     global current_cluster
@@ -111,7 +120,7 @@ def escape_relationship_name(name):
 
 class Object:
     def __init__(self, name, key_fields, value_fields):
-        global previous_object_escaped_name
+        global previous_object_name
 
         self.name = name
         self.namespace = name.split(':')[0]
@@ -119,7 +128,7 @@ class Object:
         self.key_fields = key_fields
         self.value_fields = value_fields
 
-        previous_object_escaped_name = self.escaped_name
+        previous_object_name = self.name
 
     def render(self):
         global namespaces
@@ -143,9 +152,10 @@ class Object:
 # Global variables
 
 line_number = 0
-previous_object_escaped_name = None
+previous_object_name = None
 objects = {}
 relationships = []
+related_objects_dict = {}
 current_cluster = None
 clusters = {}
 namespaces = {}
@@ -172,14 +182,14 @@ for line in file:
 print('digraph G {\nnode [shape=plaintext]\n')  # Graph starts
 
 for cluster_name, cluster_objects in clusters.items():
-    print('subgraph cluster_%s {' % (cluster_name))
+    print('subgraph cluster_%s {\n' % (cluster_name))
     for object in cluster_objects:
         object = objects[object]
         object.render()
-    print('}')
+    print('}\n')
 
 for object_name, object in objects.items():  # Render objects
-    if not clusters.has_key(object_name):
+    if not clusters.has_key(object_name) and related_objects_dict.has_key(object_name):
         object.render()
 
 for relationship in relationships:
