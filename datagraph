@@ -61,12 +61,37 @@ def register_relationship(args):
     relationships.append((source, target))
 
 def register_cluster(args):
-    pass
+    global current_cluster
+
+    args = args.split(' ', 1)
+    sub_command = args[0]
+    args = args[1]
+
+    if sub_command == 'add':
+        (cluster, objects) = args.split(' ', 1)
+        if not objects.startswith('[') or not objects.endswith(']'):
+            parse_error('The object list of "cluster add" is not enclosed into square brackets')
+        objects = objects[1:-1]
+        objects = objects.split(',')
+        for object in objects:
+            add_object_to_cluster(cluster, object)
+    elif sub_command == 'start':
+        current_cluster = args[0]
+    elif sub_command == 'end':
+        current_cluster = None
 
 def register_namespace(args):
     global namespaces
     (name, title_color, normal_color) = args.split()
     namespaces[name] = (title_color, normal_color)
+
+def add_object_to_cluster(cluster, object):
+    global clusters
+    object = object.strip()
+    if clusters.has_key(cluster):
+        clusters[cluster].append(object)
+    else:
+        clusters[cluster] = [object]
 
 def parse_error(message):
     global line_number
@@ -146,8 +171,16 @@ for line in file:
 
 print('digraph G {\nnode [shape=plaintext]\n')  # Graph starts
 
+for cluster_name, cluster_objects in clusters.items():
+    print('subgraph cluster_%s {' % (cluster_name))
+    for object in cluster_objects:
+        object = objects[object]
+        object.render()
+    print('}')
+
 for object_name, object in objects.items():  # Render objects
-    object.render()
+    if not clusters.has_key(object_name):
+        object.render()
 
 for relationship in relationships:
     source, target = relationship
