@@ -1,8 +1,11 @@
 #!/usr/bin/env python
 
 from sys import argv, exit
+from random import randint
+from string import join
 
 enable_clusters = False
+enable_randomized_line_colors = True
 
 # Functions
 
@@ -121,6 +124,23 @@ def escape_relationship_name(name):
     name = name[:last_dot_pos].replace('.', '_') + ':' + name[last_dot_pos+1:]
     return name
 
+def generate_random_color():
+
+    def get_hex_color(color):
+        return color if len(color) == 2 else '0' + color
+
+    global enable_randomized_line_colors
+
+    if not enable_randomized_line_colors:
+        return '000000'
+
+    maximum_brightness_percentage = 65
+
+    while True:
+        colors = [randint(0,255) for i in range(3)]
+        if sum(colors) < maximum_brightness_percentage/100.0*3*256:
+            return join([get_hex_color(hex(color)[2:]) for color in colors], '')
+
 # Classes
 
 class Object:
@@ -201,6 +221,6 @@ for relationship in relationships:
     source, target = relationship
     source = escape_relationship_name(source)
     target = escape_relationship_name(target)
-    print('%s -> %s;' % (source, target))
+    print('%s -> %s [color="#%s"];' % (source, target, generate_random_color()))
 
 print('}')  # Graph ends
