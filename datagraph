@@ -6,6 +6,7 @@ from string import join
 
 enable_clusters = False
 enable_randomized_line_colors = True
+hide_unrelated_objects = False
 
 # Functions
 
@@ -53,7 +54,7 @@ def register_object(args):
     objects[name] = Object(name, key_fields, value_fields)
 
 def register_relationship(args):
-    global relationships, previous_object_name, related_objects_dict
+    global relationships, previous_object_name, related_objects_dict, hide_unrelated_objects
 
     (source, target) = args.split('->', 1)
 
@@ -68,8 +69,9 @@ def register_relationship(args):
     source_object = extract_object_name(source)
     target_object = extract_object_name(target)
 
-    related_objects_dict[source_object] = True
-    related_objects_dict[target_object] = True
+    if hide_unrelated_objects:
+        related_objects_dict[source_object] = True
+        related_objects_dict[target_object] = True
 
 def extract_object_name(relationship):
     return relationship[:relationship.rfind('.')]
@@ -155,7 +157,15 @@ class Object:
 
         previous_object_name = self.name
 
-    def render(self):
+    def IsRelated(self):
+        global related_objects, hide_unrelated_objects
+        return related_objects_dict.has_key(self.name) or not hide_unrelated_objects
+
+    def IsWithinCluster(self):
+        global clusters
+        return clusters.has_key(self.name)
+
+    def Render(self):
         global namespaces
 
         title_color = namespaces[self.namespace][0]
@@ -210,12 +220,12 @@ for cluster_name, cluster_objects in clusters.items():
     print('subgraph cluster_%s {\n' % (cluster_name))
     for object in cluster_objects:
         object = objects[object]
-        object.render()
+        object.Render()
     print('}\n')
 
 for object_name, object in objects.items():  # Render objects
-    if not clusters.has_key(object_name) and related_objects_dict.has_key(object_name):
-        object.render()
+    if not object.IsWithinCluster() and object.IsRelated():
+        object.Render()
 
 for relationship in relationships:
     source, target = relationship
