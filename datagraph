@@ -203,7 +203,7 @@ namespaces = {}
 input_filename = argv[1]
 file = open(input_filename, 'r')
 
-for line in file:
+for line in file:  # Parse input datagraph file.
     line_number += 1
     line = line.replace('\t', ' ')
     line = reduce_spaces(line)
@@ -217,23 +217,23 @@ for line in file:
     (entity_type, entity_args) = tokenized_line
     register_entity(entity_type, entity_args)
 
-print('digraph G {\nnode [shape=plaintext]\n')  # Graph starts
+print('digraph G {\nnode [shape=plaintext]\n')  # Start outputting the graph.
 
-for cluster_name, cluster_objects in clusters.items():
+for cluster_name, cluster_objects in clusters.items():  # Render objects inside the clusters.
     print('subgraph cluster_%s {\n' % (cluster_name))
     for object in cluster_objects:
         object = objects[object]
         object.Render()
     print('}\n')
 
-for object_name, object in objects.items():  # Render objects
+for object_name, object in objects.items():  # Render objects outside the clusters.
     if not object.IsWithinCluster() and object.IsRelated():
         object.Render()
 
-for relationship in relationships:  # Render relationships
+for relationship in relationships:  # Render relationships.
     source, target = relationship
     source = escape_relationship_name(source)
     target = escape_relationship_name(target)
     print('%s -> %s [color="#%s"];' % (source, target, generate_random_color()))
 
-print('}')  # Graph ends
+print('}')  # Finish outputting the graph.
