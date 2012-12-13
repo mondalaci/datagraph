@@ -226,10 +226,7 @@ for cluster_name, cluster_objects in clusters.items():
         object.Render()
     print('}\n')
 
-#for obj in related_objects_dict:
-#    print obj
 for object_name, object in objects.items():  # Render objects
-#    print object_name
     if not object.IsWithinCluster() and object.IsRelated():
         object.Render()
 
