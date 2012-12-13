@@ -4,9 +4,11 @@ from sys import argv, exit
 from random import randint
 from string import join
 
+# Globals for options
+
 enable_clusters = False
 enable_randomized_line_colors = True
-hide_unrelated_objects = False
+hide_unrelated_objects = True
 
 # Functions
 
@@ -54,6 +56,10 @@ def register_object(args):
     objects[name] = Object(name, key_fields, value_fields)
 
 def register_relationship(args):
+
+    def extract_object_name(relationship):
+        return relationship[:relationship.rfind('.')]
+
     global relationships, previous_object_name, related_objects_dict, hide_unrelated_objects
 
     (source, target) = args.split('->', 1)
@@ -62,7 +68,7 @@ def register_relationship(args):
     target = target.strip()
 
     if source.startswith('.'):
-        source = escape(previous_object_name) + source
+        source = previous_object_name + source
 
     relationships.append((source, target))
 
@@ -72,9 +78,6 @@ def register_relationship(args):
     if hide_unrelated_objects:
         related_objects_dict[source_object] = True
         related_objects_dict[target_object] = True
-
-def extract_object_name(relationship):
-    return relationship[:relationship.rfind('.')]
 
 def register_cluster(args):
     global current_cluster, enable_clusters
@@ -223,11 +226,14 @@ for cluster_name, cluster_objects in clusters.items():
         object.Render()
     print('}\n')
 
+#for obj in related_objects_dict:
+#    print obj
 for object_name, object in objects.items():  # Render objects
+#    print object_name
     if not object.IsWithinCluster() and object.IsRelated():
         object.Render()
 
-for relationship in relationships:
+for relationship in relationships:  # Render relationships
     source, target = relationship
     source = escape_relationship_name(source)
     target = escape_relationship_name(target)
