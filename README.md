@@ -23,7 +23,7 @@ Rather than formally specifying the language let's take a look at [example.datag
     relationship sql:post.category_id -> sql:category.id
     relationship couchbase:comment.author_id -> sql:user.id
 
-After creating `example.datagraph` let's fire up the console:
+After creating `example.datagraph` let's execute the following commands:
 
     datagraph example.datagraph > example.gv
     dot example.gv -Tpng > example.png
