@@ -1,13 +1,9 @@
 datagraph
 =========
 
-Datagraph is a minimalist data description language specifically designed for visualizing objects, their fields and their relations in a system.
+Datagraph is a minimalist data description language specifically designed for visualizing objects, their fields and their relations in a system.  The datagraph language gets transcompiled to the dot language of Graphviz.  Graphviz is then able to generate a wide range of output formats such as PNG, PDF or PostScript.
 
-The datagraph language gets transcompiled to the dot language of Graphviz.  Graphviz is then able to generate a wide range of output formats such as PNG, PDF or PostScript.
-
-Rather than formally specifying the language let's take a look at:
-
-example.datagraph:
+Rather than formally specifying the language let's take a look at [example.datagraph](example.datagrap):
 
     namespace sql #00c0c0 #00f0f0
     namespace couchbase #50d050 #80ff20
@@ -25,7 +21,7 @@ example.datagraph:
     relationship sql:post.category_id -> sql:category.id
     relationship couchbase:comment.author_id -> sql:user.id
 
-After creating the above files let's fire up the console:
+After creating `example.datagraph` let's fire up the console:
 
     datagraph example.datagraph > example.gv
     dot example.gv -Tpng > example.png
