@@ -1,7 +1,9 @@
 datagraph
 =========
 
-Datagraph is a minimalist data description language specifically designed for visualizing objects, their fields and their relationship in a system.  The datagraph language gets transcompiled to the dot language of Graphviz.  Graphviz is then able to generate a wide range of output formats such as PNG, PDF or PostScript.
+Datagraph is a minimalist data description language specifically designed for visualizing objects, their fields and their relationship in a system.
+
+The datagraph language gets transcompiled to the dot language of Graphviz.  Graphviz is then able to generate a wide range of output formats such as PNG, PDF or PostScript.
 
 Rather than formally specifying the language let's take a look at [example.datagraph](example.datagrap):
 
