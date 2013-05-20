@@ -5,7 +5,7 @@ Datagraph is a minimalist data description language specifically designed for vi
 
 The datagraph language gets transcompiled to the dot language of [Graphviz](http://graphviz.org/).  Graphviz is then able to generate a wide range of output formats such as PNG, PDF or PostScript.
 
-Rather than formally specifying the language let's take a look at [example.datagraph](example.datagrap):
+Rather than formally specifying the language let's take a look at [example.datagraph](example.datagraph):
 
     namespace sql #00c0c0 #00f0f0
     namespace couchbase #50d050 #80ff20
