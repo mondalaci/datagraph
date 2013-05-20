@@ -1,0 +1,17 @@
+namespace sql #00c0c0 #00f0f0
+namespace couchbase #50d050 #80ff20
+
+cluster start content
+object sql:post [id] -> [category_id, author_id, timestamp, title, content]
+object couchbase:comment [id] -> [author_id, timestamp, content]
+cluster end
+
+object sql:user [id] -> [name, age, gender]
+object sql:category [id] -> [name]
+object couchbase:post_comments [post_id] -> [comment_ids]
+
+relationship sql:post.author_id -> sql:user.id
+relationship sql:post.category_id -> sql:category.id
+relationship couchbase:post_comments.post_id -> sql:post.id
+relationship couchbase:post_comments.comment_ids -> couchbase:comment.id
+relationship couchbase:comment.author_id -> sql:user.id
