@@ -1,0 +1,52 @@
+digraph G {
+node [shape=plaintext]
+
+sql_category [label=<<table border="0" cellborder="1" cellspacing="0">
+<tr><td port="sql_category" bgcolor="#00c0c0">sql:category</td></tr>
+<tr><td port="id" bgcolor="#00f0f0">id</td></tr>
+<tr><td bgcolor="#00f0f0"> &darr; </td></tr>
+<tr><td port="name" bgcolor="#00f0f0">name</td></tr>
+</table>>];
+
+couchbase_post_comments [label=<<table border="0" cellborder="1" cellspacing="0">
+<tr><td port="couchbase_post_comments" bgcolor="#50d050">couchbase:post_comments</td></tr>
+<tr><td port="post_id" bgcolor="#80ff20">post_id</td></tr>
+<tr><td bgcolor="#80ff20"> &darr; </td></tr>
+<tr><td port="comment_ids" bgcolor="#80ff20">comment_ids</td></tr>
+</table>>];
+
+sql_post [label=<<table border="0" cellborder="1" cellspacing="0">
+<tr><td port="sql_post" bgcolor="#00c0c0">sql:post</td></tr>
+<tr><td port="id" bgcolor="#00f0f0">id</td></tr>
+<tr><td bgcolor="#00f0f0"> &darr; </td></tr>
+<tr><td port="category_id" bgcolor="#00f0f0">category_id</td></tr>
+<tr><td port="author_id" bgcolor="#00f0f0">author_id</td></tr>
+<tr><td port="timestamp" bgcolor="#00f0f0">timestamp</td></tr>
+<tr><td port="title" bgcolor="#00f0f0">title</td></tr>
+<tr><td port="content" bgcolor="#00f0f0">content</td></tr>
+</table>>];
+
+couchbase_comment [label=<<table border="0" cellborder="1" cellspacing="0">
+<tr><td port="couchbase_comment" bgcolor="#50d050">couchbase:comment</td></tr>
+<tr><td port="id" bgcolor="#80ff20">id</td></tr>
+<tr><td bgcolor="#80ff20"> &darr; </td></tr>
+<tr><td port="author_id" bgcolor="#80ff20">author_id</td></tr>
+<tr><td port="timestamp" bgcolor="#80ff20">timestamp</td></tr>
+<tr><td port="content" bgcolor="#80ff20">content</td></tr>
+</table>>];
+
+sql_user [label=<<table border="0" cellborder="1" cellspacing="0">
+<tr><td port="sql_user" bgcolor="#00c0c0">sql:user</td></tr>
+<tr><td port="id" bgcolor="#00f0f0">id</td></tr>
+<tr><td bgcolor="#00f0f0"> &darr; </td></tr>
+<tr><td port="name" bgcolor="#00f0f0">name</td></tr>
+<tr><td port="age" bgcolor="#00f0f0">age</td></tr>
+<tr><td port="gender" bgcolor="#00f0f0">gender</td></tr>
+</table>>];
+
+couchbase_post_comments:post_id -> sql_post:id [color="#11b3a0"];
+couchbase_post_comments:comment_ids -> couchbase_comment:id [color="#895a94"];
+sql_post:author_id -> sql_user:id [color="#607bbf"];
+sql_post:category_id -> sql_category:id [color="#b60d2b"];
+couchbase_comment:author_id -> sql_user:id [color="#2c5222"];
+}
